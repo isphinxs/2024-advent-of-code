@@ -1,13 +1,10 @@
 import { readIntoColumns } from './utils.js';
 
-// TODO import the file properly
-// const day01A = require('./days/01-A.js');
-
 /**
  * Day 01 A - sum difference between values in sorted lists
  */
 export async function day01A() {
-    const { columnA, columnB } = await readIntoColumns('./src/data/01-A.txt');
+    const { columnA, columnB } = await readIntoColumns('./src/data/01.txt');
     
     columnA.sort((a, b) => a - b);
     columnB.sort((a, b) => a - b);
@@ -29,7 +26,7 @@ export async function day01A() {
  * in column B
  */
 export async function day01B() {
-    const { columnA, columnB } = await readIntoColumns('./src/data/01-A.txt');
+    const { columnA, columnB } = await readIntoColumns('./src/data/01.txt');
 
     columnA.sort((a, b) => a - b);
     columnB.sort((a, b) => a - b);

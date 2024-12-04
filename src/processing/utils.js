@@ -40,9 +40,29 @@ export async function readIntoRows(file) {
     const rows = [];
 
     for await (const line of rl) {
-        rows.push(line.split(' '));;
+        rows.push(line.split(' '));
     }
 
     // console.log({ rows });
     return rows; 
+}
+
+/**
+ * Process data into rows of text
+ */
+export async function readIntoTextRows(file) {
+    const fileStream = fs.createReadStream(file);
+    const rl = readline.createInterface({
+        input: fileStream,
+        crlfDelay: Infinity,
+    });
+
+    const rows = [];
+
+    for await (const line of rl) {
+        rows.push(line);
+    }
+
+    // console.log({ rows });
+    return rows;   
 }

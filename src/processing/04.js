@@ -22,6 +22,39 @@ export class Day04 {
         return this.count;
     }
 
+    /**
+     * Count the number of times X-'MAS' appears
+     */
+    async B() {
+        // const rows = await readIntoTextRows('./src/data/test.txt');
+        const rows = await readIntoTextRows('./src/data/04.txt');
+
+        for (let row = 0; row < rows.length - 2; row++) {
+            for (let column = 0; column < rows[0].length - 2; column++) {
+                this.count += this._checkCrossMas(rows, row, column);
+            }
+        }
+
+        console.log(this.count); // 9 (test), 1807 (puzzle)
+        return this.count;
+    }
+
+    _checkCrossMas(rows, row, column) {
+        const word1 = rows[row][column] + rows[row + 1][column + 1] + rows[row + 2][column + 2];
+        const word2 = rows[row + 2][column] + rows[row + 1][column + 1] + rows[row][column + 2];
+
+        // console.log({ row, column, word1, word2 });
+
+        if ((word1 === 'MAS' || word1 === 'SAM') && (word2 === 'MAS' || word2 === 'SAM')) {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    /**
+     * Check for 'XMAS' or 'SAMX' horizontally
+     */
     _checkHorizontal(rows) {
         rows.forEach(row => {
             let word = 0;
@@ -37,6 +70,9 @@ export class Day04 {
         });
     }
 
+    /**
+     * Check for 'XMAS' or 'SAMX' vertically
+     */
     _checkVertical(rows) {
         const rowLength = rows[0].length;
 
@@ -54,6 +90,9 @@ export class Day04 {
         }
     }
 
+    /**
+     * Check for 'XMAS' or 'SAMX' diagonally
+     */
     _checkDiagonal(rows) {
         const numRows = rows.length;
         const numColumns = rows[0].length;

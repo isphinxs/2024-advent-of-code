@@ -4,7 +4,7 @@
 // import { Day04 } from './src/processing/04.js';
 import { Day05 } from './src/processing/05.js';
 
-console.log('day 05A');
+console.log('day 05B');
 
 // day01A();
 // day01B();
@@ -16,4 +16,4 @@ console.log('day 05A');
 // day.A();
 // day.B();
 const day = new Day05();
-day.A();
+day.B();

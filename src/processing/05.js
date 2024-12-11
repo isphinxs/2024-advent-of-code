@@ -50,6 +50,60 @@ export class Day05 {
         return sum;
     }
 
+    /**
+     * Sum the middle pages of corrected updates
+     */
+    async B() {
+        // const rows = await readIntoTextRows('./src/data/test.txt');
+        const rows = await readIntoTextRows('./src/data/05.txt');
+
+        // process rules and updates
+        const { rules, updates, startRules } = this._processRowsIntoRulesAndUpdates(rows);
+
+        let sum = 0;
+
+        updates.forEach((update, updateIdx) => {
+            let isValid = this._reviewAndCorrectUpdate(update, rules, startRules);
+            
+            if (!isValid) {
+                while (!isValid) {
+                    isValid = this._reviewAndCorrectUpdate(update, rules, startRules);
+                }
+
+                const midIdx = Math.floor(update.length / 2);
+                sum += update[midIdx];
+            }
+        });
+
+        console.log(sum); // 6142
+        return sum;
+    }
+
+    _reviewAndCorrectUpdate(update, rules, startRules) {
+        let isValid = true;
+
+        // if a page has a rule, we just have to check that none of the
+        // end pages occur before that page
+        update.forEach((page, pageIdx) => {
+            if (startRules.has(page)) {
+                const rule = rules.get(page);
+
+                for (let i = 0; i < pageIdx; i++) {
+                    const prevPage = update[i];
+                    if (rule.has(prevPage)) {
+                        isValid = false;
+
+                        // fix order 
+                        update.splice(i, 1);
+                        update.splice(pageIdx, 0, prevPage);
+                    }
+                }
+            }
+        });
+
+        return isValid;
+    }
+
     _processRowsIntoRulesAndUpdates(rows) {
         const rules = new Map();
         const updates = [];

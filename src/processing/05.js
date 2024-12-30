@@ -115,7 +115,6 @@ export class Day05 {
             if (row.length === 0) {
                 isUpdate = false;
             } else if (isUpdate) {
-                // rules.push(row.split('|').map(num => Number(num)));
                 const [a, b] = row.split('|').map(num => Number(num));
 
                 if (rules.has(a)) {

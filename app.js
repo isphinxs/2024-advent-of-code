@@ -16,5 +16,5 @@ console.log('day 06A');
 // const day = new Day04();
 // const day = new Day05();
 const day = new Day06();
-day.A();
-// day.B();
+// day.A();
+day.B();

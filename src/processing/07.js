@@ -6,7 +6,7 @@ export class Day07 {
     constructor() {}
 
     /**
-     * Find the sum of the test values for valid operations
+     * Find the sum of the test values for valid operations (+, *)
      */
     async A() {
         // const rows = await readIntoTextRows('./src/data/test.txt');
@@ -24,6 +24,25 @@ export class Day07 {
         return sum;
     }
 
+    /**
+     * Find the sum of the test values for valid operations (+, *, concatenation)
+     */
+    async B() {
+        // const rows = await readIntoTextRows('./src/data/test.txt');
+        const rows = await readIntoTextRows('./src/data/07.txt');
+
+        rows.forEach(row => {
+            const { value, operators } = this.#processRow(row);
+
+            const result = this.#checkOperationConcat(value, operators);
+            this.#sum += result;
+        });
+
+        const sum = this.#sum;
+        console.log({ sum }); // 340362529351427
+        return sum;
+    }
+
     #checkOperation(value, operators) {
         let stack = new Set();
         stack.add(operators[0]);
@@ -38,6 +57,33 @@ export class Day07 {
 
                 if (add <= value && !nextStack.has(add)) nextStack.add(add);
                 if (mult <= value && !nextStack.has(mult)) nextStack.add(mult);
+            });
+
+            stack = nextStack;
+            pos++;
+        }
+
+        return stack.has(value) ? value : 0;
+    }
+
+    #checkOperationConcat(value, operators) {
+        let stack = new Set();
+        stack.add(operators[0]);
+        let pos = 1;
+
+        while (pos < operators.length) {
+            const nextStack = new Set();
+
+            stack.forEach(entry => {
+                const mult = entry * operators[pos];
+                const add = entry + operators[pos];
+                const concat = Number(entry.toString() + operators[pos].toString());
+
+                // console.log({ mult, add, concat });
+
+                if (add <= value && !nextStack.has(add)) nextStack.add(add);
+                if (mult <= value && !nextStack.has(mult)) nextStack.add(mult);
+                if (concat <= value && !nextStack.has(concat)) nextStack.add(concat);
             });
 
             stack = nextStack;

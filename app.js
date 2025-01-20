@@ -16,5 +16,5 @@ import { Day07 } from './src/processing/07.js';
 // const day = new Day05();
 // const day = new Day06();
 const day = new Day07();
-day.A();
-// day.B();
+// day.A();
+day.B();

@@ -9,47 +9,42 @@ export class Day07 {
      * Find the sum of the test values for valid operations
      */
     async A() {
-        const rows = await readIntoTextRows('./src/data/test.txt');
-        // const rows = await readIntoTextRows('./src/data/07.txt');
+        // const rows = await readIntoTextRows('./src/data/test.txt');
+        const rows = await readIntoTextRows('./src/data/07.txt');
 
         rows.forEach(row => {
             const { value, operators } = this.#processRow(row);
 
             const result = this.#checkOperation(value, operators);
-            const numResults = result.length;
-            console.log({ result, numResults });
+            this.#sum += result;
         });
 
         const sum = this.#sum;
-        console.log({ sum });
-        // 2628155 - too low
-        // 2631038090373 - too low
-        // 159450344926 - too low
-        // 856423678063 - too low
+        console.log({ sum }); // 3598800864292
         return sum;
     }
 
     #checkOperation(value, operators) {
-        // try recursion
-        // console.log({ operators });
+        let stack = new Set();
+        stack.add(operators[0]);
+        let pos = 1;
 
-        if (operators.length === 0) {
-            return [[]];
+        while (pos < operators.length) {
+            const nextStack = new Set();
+
+            stack.forEach(entry => {
+                const mult = entry * operators[pos];
+                const add = entry + operators[pos];
+
+                if (add <= value && !nextStack.has(add)) nextStack.add(add);
+                if (mult <= value && !nextStack.has(mult)) nextStack.add(mult);
+            });
+
+            stack = nextStack;
+            pos++;
         }
 
-        const permutations = [];
-
-        for (let operator of operators) {
-            // console.log({ operator });
-            const remainingOperators = operators.filter(element => element !== operator);
-            const subPermutations = this.#checkOperation(value, remainingOperators);
-
-            for (let perm of subPermutations) {
-                permutations.push([operator, ...perm]);
-            }
-        }
-
-        return permutations;
+        return stack.has(value) ? value : 0;
     }
 
     #processRow(row) {

@@ -1,5 +1,12 @@
 import { readIntoTextRows } from './utils.js';
 
+class AntiNode {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+}
+
 export class Day08 {
     #antinodes;
     #coordinates;
@@ -9,7 +16,6 @@ export class Day08 {
 
     constructor() {
         this.#coordinates = new Map();
-        // this.#antinodes = [];
         this.#antinodes = new Map();
         this.#count = 0;
     }
@@ -31,16 +37,6 @@ export class Day08 {
         // calculate where antinodes will be
         this.#calculateAntinodes();
 
-        // const coordinates = this.#coordinates;
-        // console.log({ coordinates });
-
-        // const numAntinodes = this.#antinodes.length;
-        // console.log({ numAntinodes });
-
-        // this.#antinodes.forEach(antinode => {
-        //     console.log(antinode);
-        // });
-
         const count = this.#count;
         console.log({ count }); // 351
         return count;
@@ -48,28 +44,6 @@ export class Day08 {
 
     #calculateAntinodes() {
         for (const coordinates of this.#coordinates.values()) {
-            // check for horizontal
-            // check for vertical
-            // check each column to left/right/top/bottom
-            // 1 x 1 diagonal
-            // 1 x 2, 1 x 3, etc., diagonal
-            // 2 x 1, 3 x 1, etc., diagonal
-            // ^^ top-right, bottom-right, top-left, bottom-left quadrants
-
-            // const { x, y } = coordinates;
-
-            // // 1 x 1 diagonal
-            // for (let i = 0; i < x.length; i++) {
-            //     const row = x[i];
-            //     const column = y[i];
-
-            //     // top-right
-                
-
-            //     console.log({ row, column });
-            // }
-
-            // TAKE TWO:
             // just check each node against each other node, I think that might be simpler
             // calculate the nodes for each pairing
             // ... the antinode is equally far away from the middle point as the middle point
@@ -82,7 +56,6 @@ export class Day08 {
             // - add if the bottom point is to the right of the top point
             // - subtract if the bottom point is to the left of the top point
 
-            // console.log({ coordinates });
             for (let i = 0; i < coordinates.length - 1; i++) {
                 const top = coordinates[i];
 
@@ -91,62 +64,23 @@ export class Day08 {
 
                     const [xT, yT] = top;
                     const [xB, yB] = bottom;
-                    const xDiff = xT - xB;
+                    const xDiff = xT - xB; // negative if top is left of right, and vice versa
                     const yDiff = yT - yB; // should always be positive, unless they're in the same column
 
-                    let antinodeTop;
-                    let antinodeBottom;
+                    const xAT = xT + xDiff;
+                    const yAT = yT + yDiff; 
+                    const antinodeTop = new AntiNode(xAT, yAT);
 
-                    // if (xDiff > 0) {
-                        // if top is to the right of bottom (top[0] > bottom[0], xDiff > 0), add x
-                        const xAT = xT + xDiff;
-                        const yAT = yT + yDiff; 
-                        antinodeTop = [xAT, yAT];
+                    const xAB = xB - xDiff;
+                    const yAB = yB - yDiff;
+                    const antinodeBottom = new AntiNode(xAB, yAB);
 
-                        const xAB = xB - xDiff;
-                        const yAB = yB - yDiff;
-                        antinodeBottom = [xAB, yAB];
-                    // } else {
-                    //     // top is to the left of bottom (top[0] < bottom[0], xDiff < 0), subtract x
-                    //     const xAT = xT + xDiff; // xDiff is negative
-                    //     const yAT = yT + yDiff; 
-                    //     antinodeTop = [xAT, yAT];
-
-                    //     const xAB = xB - xDiff; // xDiff is negative
-                    //     const yAB = yB - yDiff;
-                    //     antinodeBottom = [xAB, yAB];
-                    //     // TODO these patterns in both blocks are exactly the same
-                    // }
-                
-                    // TODO clean up
-                    // if (antinodeTop[0] > this.#xMax 
-                    //     || antinodeTop[0] < 0
-                    //     || antinodeTop[1] > this.#yMax
-                    //     || antinodeTop[1] < 0 
-                    // ) {
-                    //     // do nothing
-                    // } else {
-                    //     this.#antinodes.push(antinodeTop);
-                    // }
-                   
-                    // if (antinodeBottom[0] > this.#xMax 
-                    //     || antinodeBottom[0] < 0
-                    //     || antinodeBottom[1] > this.#yMax
-                    //     || antinodeBottom[1] < 0 
-                    // ) {
-                    //     // do nothing
-                    // } else {
-                    //     this.#antinodes.push(antinodeBottom);
-                    // }
-
-                    if (!this.#isOutsideBounds(antinodeTop[0], antinodeTop[1])) {
-                        // this.#antinodes.push(antinodeTop);
-                        this.#addAntinode(antinodeTop[0], antinodeTop[1]);
+                    if (!this.#isOutsideBounds(antinodeTop)) {
+                        this.#addAntinode(antinodeTop);
                     }
 
-                    if (!this.#isOutsideBounds(antinodeBottom[0], antinodeBottom[1])) {
-                        // this.#antinodes.push(antinodeBottom);
-                        this.#addAntinode(antinodeBottom[0], antinodeBottom[1]);
+                    if (!this.#isOutsideBounds(antinodeBottom)) {
+                        this.#addAntinode(antinodeBottom);
                     }
                 }
             }
@@ -156,7 +90,10 @@ export class Day08 {
     /**
      * Add antinode if it hasn't been added already
      */
-    #addAntinode(x, y) {
+    #addAntinode(antinode) {
+        const x = antinode.x;
+        const y = antinode.y;
+
         // Map<x, Set<y>>
         if (!this.#antinodes.has(x)) {
             const ys = new Set();
@@ -177,7 +114,10 @@ export class Day08 {
     /**
      * Check if the antinode is outside the map
      */
-    #isOutsideBounds(x, y) {
+    #isOutsideBounds(antinode) {
+        const x = antinode.x;
+        const y = antinode.y;
+
         return (x > this.#xMax || x < 0 || y > this.#yMax || y < 0);
     }
 

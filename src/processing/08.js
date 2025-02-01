@@ -42,6 +42,94 @@ export class Day08 {
         return count;
     }
 
+    async B() {
+        // const rows = await readIntoTextRows('./src/data/test.txt');
+        const rows = await readIntoTextRows('./src/data/08.txt');
+
+        // calculate the coordinates of all antennas of each type
+        this.#findCoordinates(rows);
+
+        this.#calculateAllAntinodes();
+
+        const count = this.#count;
+        console.log({ count }); // 1259
+        return count;
+    }
+
+    /**
+     * Find all antinodes for each pair of nodes
+     */
+    #calculateAllAntinodes() {
+        for (const coordinates of this.#coordinates.values()) {
+            for (let i = 0; i < coordinates.length - 1; i++) {
+                const top = coordinates[i];
+
+                for (let j = i + 1; j < coordinates.length; j++) {
+                    const bottom = coordinates[j];
+
+                    const [xT, yT] = top;
+                    const [xB, yB] = bottom;
+                    const xDiff = xT - xB; // negative if top is left of right, and vice versa
+                    const yDiff = yT - yB; // should always be positive, unless they're in the same column
+
+                    // the original nodes are antinodes, also
+                    this.#addAntinode(new AntiNode(xT, yT));
+                    this.#addAntinode(new AntiNode(xB, yB));
+
+                    // determine the next set of antinodes
+                    const xAT = xT + xDiff;
+                    const yAT = yT + yDiff; 
+                    const antinodeTop = new AntiNode(xAT, yAT);
+
+                    const xAB = xB - xDiff;
+                    const yAB = yB - yDiff;
+                    const antinodeBottom = new AntiNode(xAB, yAB);
+
+                    console.log({ antinodeTop, antinodeBottom });
+
+                    if (!this.#isOutsideBounds(antinodeTop)) {
+                        this.#addAntinode(antinodeTop);
+                    }
+
+                    if (!this.#isOutsideBounds(antinodeBottom)) {
+                        this.#addAntinode(antinodeBottom);
+                    }
+
+                    // continue left and right
+                    // xDiff and yDiff don't change
+                    let baseTop = antinodeTop;
+                    let baseBottom = antinodeBottom;
+                    console.log({ baseBottom });
+
+                    while (!this.#isOutsideBounds(baseTop)) {
+                        const xAT = baseTop.x + xDiff;
+                        const yAT = baseTop.y + yDiff; 
+                        console.log({ xAT, yAT });
+                        baseTop = new AntiNode(xAT, yAT);
+
+                        if (!this.#isOutsideBounds(baseTop)) {
+                            this.#addAntinode(baseTop);
+                        }
+                    }
+
+                    while (!this.#isOutsideBounds(baseBottom)) {
+                        const xAB = baseBottom.x - xDiff;
+                        const yAB = baseBottom.y - yDiff;
+                        console.log({ xAB, yAB });
+                        baseBottom = new AntiNode(xAB, yAB);
+
+                        if (!this.#isOutsideBounds(baseBottom)) {
+                            this.#addAntinode(baseBottom);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Find the antinode for each pair of nodes
+     */
     #calculateAntinodes() {
         for (const coordinates of this.#coordinates.values()) {
             // just check each node against each other node, I think that might be simpler
@@ -135,19 +223,7 @@ export class Day08 {
                 const char = row.charAt(y);
                 
                 if (char !== '.') {
-                    // TAKE ONE: map of characters, xs, and ys
-                    // Map<char, { x: Number[], y: Number[] }>
-                    // console.log({ char });
-                    // if (!this.#coordinates.has(char)) {
-                    //     this.#coordinates.set(char, { x: [x], y: [y] });
-                    // } else {
-                    //     const coordinates = this.#coordinates.get(char);
-                    //     coordinates.x.push(x);
-                    //     coordinates.y.push(y);
-                    //     this.#coordinates.set(char, coordinates);
-                    // }
-
-                    // TAKE TWO: save the coordinates by character
+                    // Map<x, Set<y>>
                     if (!this.#coordinates.has(char)) {
                         this.#coordinates.set(char, [[x, y]]);
                     } else {
